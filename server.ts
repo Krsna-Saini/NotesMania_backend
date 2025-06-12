@@ -16,7 +16,6 @@ import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHt
 import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/use/ws';
-
 async function startServer() {
    const app: Express = express();
   const httpServer = http.createServer(app);
@@ -73,14 +72,16 @@ async function startServer() {
   // REST endpoint
   app.post("/api/chat", handleChatWithAi);
   app.post("/upload",upload.array('files'),uploadfile);
-
+  app.get("/",(req,res)=>{
+    res.send("hello")
+  })
   // Error handling
   app.use((err: Error, req: express.Request, res: express.Response, next: express.NextFunction) => {
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   });
 
-  const PORT = process.env.PORT || 4000;
+  const PORT = process.env.PORT;
   httpServer.listen(PORT, () => {
     console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
   });
