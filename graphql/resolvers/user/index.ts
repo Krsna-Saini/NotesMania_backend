@@ -92,11 +92,8 @@ export const userResolvers = {
       return Users || []
     },
     UpdateProfile: async (_: unknown, { input }: IUserUpdateProfile) => {
+      if (!input.userId) throw new Error("User ID is required");
       const ProfileAttachment = await attachment.findById(input.AttchmentUrl)
-
-      if (!ProfileAttachment) {
-        throw new Error("Attachment not found");
-      }
       const UserData = await User.findByIdAndUpdate(input.userId,
         {
           username: input.username,
