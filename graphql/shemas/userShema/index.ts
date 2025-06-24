@@ -28,7 +28,7 @@ export const userTypeDefs = gql`
   input UpdateProfileInput{
     userId:String!
     username: String
-    profileImageUrl: String
+    AttchmentUrl: String
     description: String
   }
   type Query {

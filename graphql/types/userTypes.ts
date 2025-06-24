@@ -10,7 +10,7 @@ export interface IUserGroup {
 interface UserProfile {
   userId:string;
   username?: string;
-  profileImageUrl?: string;
+  AttchmentUrl?: string;
   description?: string;
 }
 export interface IUserUpdateProfile{

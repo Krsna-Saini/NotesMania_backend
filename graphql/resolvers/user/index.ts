@@ -1,8 +1,9 @@
-import { IUserDocument, IUserUpdateProfile,IUserGroupParent, IGetUserArgs, ICreateUserArgs, IUpdateUserArgs, IDeleteUserArgs, IAddUserToGroupArgs } from "../../types/userTypes";
+import { IUserDocument, IUserUpdateProfile, IUserGroupParent, IGetUserArgs, ICreateUserArgs, IUpdateUserArgs, IDeleteUserArgs, IAddUserToGroupArgs } from "../../types/userTypes";
 import User from "../../../models/user";
 import Group from "../../../models/group";
 import bcrypt from "bcrypt";
 import { pubsub } from "../../../config/pubsub";
+import attachment from "../../../models/attachment";
 const ONLINE_USERS: Set<string> = new Set();
 const ONLINE_USERS_TOPIC = "ONLINE_USERS";
 export const userResolvers = {
@@ -77,30 +78,31 @@ export const userResolvers = {
       pubsub.publish(ONLINE_USERS_TOPIC, { onlineUsers: Array.from(ONLINE_USERS) });
       return true;
     },
-    userOffline:async(_:unknown,{userId}:{userId:string})=>{
+    userOffline: async (_: unknown, { userId }: { userId: string }) => {
       ONLINE_USERS.delete(userId);
-      pubsub.publish(ONLINE_USERS_TOPIC,{ONLINE_USERS:Array.from(ONLINE_USERS)})
+      pubsub.publish(ONLINE_USERS_TOPIC, { ONLINE_USERS: Array.from(ONLINE_USERS) })
       return true;
     },
-    searchUser:async(_:unknown,{username}:{username:string})=>{
-      const Users=await User.find({
-        username:{$regex:username,$options:"i"}
+    searchUser: async (_: unknown, { username }: { username: string }) => {
+      const Users = await User.find({
+        username: { $regex: username, $options: "i" }
       })
-      .select(" username email profileImageUrl id")
-      .limit(10)
+        .select(" username email profileImageUrl id")
+        .limit(10)
       return Users || []
     },
-    UpdateProfile:async(_:unknown,{input}:IUserUpdateProfile)=>{
-      const UserData=await User.findByIdAndUpdate(input.userId,
+    UpdateProfile: async (_: unknown, { input }: IUserUpdateProfile) => {
+      const ProfileAttachment = await attachment.findById(input.AttchmentUrl)
+      const UserData = await User.findByIdAndUpdate(input.userId,
         {
-          username:input.username,
-          description:input.description,
-          profileImageUrl:input.profileImageUrl,
+          username: input.username,
+          description: input.description,
+          profileImageUrl: ProfileAttachment?.URL,
         }
       );
-        if(!UserData)throw new Error("User not found")
-        console.log(UserData)
-        return UserData
+      if (!UserData) throw new Error("User not found")
+      console.log(UserData)
+      return UserData
     }
 
   },
