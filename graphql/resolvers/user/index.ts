@@ -1,4 +1,4 @@
-import { IUserDocument, IUserGroupParent, IGetUserArgs, ICreateUserArgs, IUpdateUserArgs, IDeleteUserArgs, IAddUserToGroupArgs } from "../../types/userTypes";
+import { IUserDocument, IUserUpdateProfile,IUserGroupParent, IGetUserArgs, ICreateUserArgs, IUpdateUserArgs, IDeleteUserArgs, IAddUserToGroupArgs } from "../../types/userTypes";
 import User from "../../../models/user";
 import Group from "../../../models/group";
 import bcrypt from "bcrypt";
@@ -63,13 +63,6 @@ export const userResolvers = {
         throw new Error("Invalid password");
       }
       return user;
-    }
-    ,
-    updateUser: async (
-      _: unknown,
-      { id, input }: IUpdateUserArgs
-    ): Promise<IUserDocument | null> => {
-      return await User.findByIdAndUpdate(id, input, { new: true });
     },
 
     deleteUser: async (
@@ -96,6 +89,18 @@ export const userResolvers = {
       .select(" username email profileImageUrl id")
       .limit(10)
       return Users || []
+    },
+    UpdateProfile:async(_:unknown,{input}:IUserUpdateProfile)=>{
+      const UserData=await User.findByIdAndUpdate(input.userId,
+        {
+          username:input.username,
+          description:input.description,
+          profileImageUrl:input.profileImageUrl,
+        }
+      );
+        if(!UserData)throw new Error("User not found")
+        console.log(UserData)
+        return UserData
     }
 
   },

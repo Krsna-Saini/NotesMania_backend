@@ -7,7 +7,15 @@ export interface IUserGroup {
   joinedAt: Date;
   lastSeen?: Date;
 }
-
+interface UserProfile {
+  userId:string;
+  username?: string;
+  profileImageUrl?: string;
+  description?: string;
+}
+export interface IUserUpdateProfile{
+  input:UserProfile
+}
 // User Document Type
 export interface IUserDocument extends Document {
   username: string;

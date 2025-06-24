@@ -25,14 +25,12 @@ export const userTypeDefs = gql`
     profileImageUrl: String
     description: String
   }
-
-  input UpdateUserInput {
+  input UpdateProfileInput{
+    userId:String!
     username: String
-    email: String
     profileImageUrl: String
     description: String
   }
-
   type Query {
     getUser(id: ID!): User
     getUsers: [User!]!
@@ -43,12 +41,12 @@ export const userTypeDefs = gql`
   type Mutation {
     authenticateUser(email: String!, password: String!): User!
     createUser(input: CreateUserInput!): User!
-    updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): Boolean!
     userOnline(userId: ID!): User!
     userOffline(userId:ID!): User!
     searchUser(username:String!):[User!]!
     handleInviteRequest(groupId:String!,userId:String!):Boolean
+    UpdateProfile(input:UpdateProfileInput):User!
   }
 
   scalar DateTime
