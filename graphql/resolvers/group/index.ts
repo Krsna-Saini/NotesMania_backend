@@ -12,14 +12,14 @@ export const GroupResolver = {
         getGroup: async (_: unknown, { groupId }: IGetGroupArgs): Promise<IGroupDocument | null> => {
             console.log("Fetching group with ID:", groupId);
             const groupdata = await group.findById(groupId)
-                .populate("leader", "id username email profilePicture")
-                .populate("admins.admin", "id username email profilePicture")
-                .populate("members.member", "id username email profilePicture")
+                .populate("leader", "id username email profileImageUrl description")
+                .populate("admins.admin", "id username email profileImageUrl description")
+                .populate("members.member", "id username email profileImageUrl description")
                 .populate({
                     path: "messages.message",
                     populate: {
                         path: "sender",
-                        select: "id username email profilePicture",
+                        select: "id username email profileImageUrl",
                     },
                 })
                 .populate({
@@ -32,7 +32,7 @@ export const GroupResolver = {
                 .populate("pinnedMessages")
                 .populate("announcements")
                 .populate("attachments")
-                .populate("inviteRequests.user", "id username email profilePicture")
+                .populate("inviteRequests.user", "id username email profileImageUrl")
                 .exec();
             return groupdata;
         },
