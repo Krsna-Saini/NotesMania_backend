@@ -94,15 +94,18 @@ export const userResolvers = {
     UpdateProfile: async (_: unknown, { input }: IUserUpdateProfile) => {
       if (!input.userId) throw new Error("User ID is required");
       const ProfileAttachment = await attachment.findById(input.AttchmentUrl)
-      const UserData = await User.findByIdAndUpdate(input.userId,
-        {
-          username: input.username,
-          description: input.description,
-          profileImageUrl: ProfileAttachment?.fileUrl,
-        }
-      );
+      const UserData = await User.findById(input.userId);
       if (!UserData) throw new Error("User not found")
-      console.log(UserData)
+      if (ProfileAttachment) {
+        UserData.profileImageUrl = ProfileAttachment.fileUrl;
+      }
+      if (input.username) {
+        UserData.username = input.username;
+      }
+      if (input.description) {
+        UserData.description = input.description;
+      }
+      await UserData.save();
       return UserData
     }
 
