@@ -32,7 +32,7 @@ const AiResponsetypeDefs = gql`
 
   type Mutation {
     addAiResponse(userId: String!, name: String): AiResponseHistory
-    updateChatName(chatId: ID!, name: String!): AiResponseHistory
+    updateChatName(chatId: String!, name: String!): AiResponseHistory
     appendMessage(chatId: ID!, message: AiMessageInput!): AiResponseHistory
     deleteChat(chatId: ID!): Boolean
   }

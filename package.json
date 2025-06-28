@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@apollo/server": "^4.9.5",
+    "ai": "^4.3.16",
     "apollo-server-express": "^3.13.0",
     "axios": "^1.8.4",
     "bcrypt": "^5.1.1",
