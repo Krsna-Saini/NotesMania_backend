@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Schema } from "mongoose";
 import { IGroupDocument } from "../graphql/types/groupTypes";
 
 const groupSchema = new Schema<IGroupDocument>(

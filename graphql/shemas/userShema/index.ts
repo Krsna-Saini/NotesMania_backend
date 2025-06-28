@@ -32,7 +32,7 @@ export const userTypeDefs = gql`
     description: String
   }
   type Query {
-    getUser(id: ID!): User
+    getUser(id: String!): User
     getUsers: [User!]!
   }
   type Subscription{

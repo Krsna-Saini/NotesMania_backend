@@ -43,6 +43,11 @@ export const GroupResolver = {
     },
     Mutation: {
         createGroup: async (_: unknown, input: ICreateGroupInput): Promise<IGroupDocument> => {
+            console.log("Creating group with input:", input);
+            const User = await user.findById(input.leader);
+            if (!User) {
+                throw new Error("User not found");
+            }
             const groupData = {
                 ...input,
                 leader: new mongoose.Types.ObjectId(input.leader),
@@ -55,6 +60,10 @@ export const GroupResolver = {
 
             const newGroup = new group(groupData);
             const savedGroup = await newGroup.save();
+
+            User.groups.push({ group: savedGroup._id, joinedAt: new Date() });
+            await User.save();
+
             return savedGroup.populate("leader");
         },
         searchGroups: async (_: unknown, { groupName }: { groupName: string }) => {
@@ -89,6 +98,10 @@ export const GroupResolver = {
             if (!Group) {
                 throw new Error("Group not found");
             }
+            const User = await user.findById(userId);
+            if (!User) {
+                throw new Error("User not found");
+            }
 
             const invite = Group.inviteRequests.find((req) => req.user.equals(userId));
 
@@ -101,8 +114,9 @@ export const GroupResolver = {
             }
 
             invite.status = "accepted";
-            const user = new mongoose.Types.ObjectId(userId)
-            Group.members.push({ member: user, status: "member", joinedAt: new Date() })
+            const UserId = new mongoose.Types.ObjectId(userId)
+            Group.members.push({ member: UserId, status: "member", joinedAt: new Date() })
+            User.groups.push({ group: new mongoose.Types.ObjectId(groupId), joinedAt: new Date() });
             await Group.save();
             return true;
         },
@@ -130,19 +144,19 @@ export const GroupResolver = {
         addMember: async (_: unknown, args: { input: IAddMemberInput }): Promise<IGroupDocument | null> => {
             const { userId, groupId } = args.input;
 
-            // Step 1: Fetch group
+
             const groupToUpdate = await group.findById(groupId);
             if (!groupToUpdate) throw new Error("Group not found");
 
             const userObjectId = new mongoose.Types.ObjectId(userId);
 
-            // Step 2: Check if user already exists in group
+
             const userAlreadyInGroup = groupToUpdate.members.some((member) =>
                 member.member.equals(userObjectId)
             );
             if (userAlreadyInGroup) throw new Error("User already in group");
 
-            // Step 3: Add member to group
+
             groupToUpdate.members.push({
                 member: userObjectId,
                 joinedAt: new Date(),
@@ -150,7 +164,7 @@ export const GroupResolver = {
             });
             await groupToUpdate.save();
 
-            // Step 4: Add system message
+
             await messageResolvers.Mutation.sendMessage(_, {
                 senderId: userId,
                 groupId: groupId,
@@ -160,7 +174,6 @@ export const GroupResolver = {
                 createdAt: new Date(),
             });
 
-            // Step 5: Add group to user’s joined groups list if not already present
             const existingUser = await user.findById(userId);
             if (existingUser) {
                 const alreadyJoined = existingUser.groups.some((g) => g.group.equals(groupId));
@@ -170,7 +183,6 @@ export const GroupResolver = {
                 }
             }
 
-            // Step 6: Populate and return
             return await group
                 .findById(groupId)
                 .populate("leader", "_id username profileImageUrl")
