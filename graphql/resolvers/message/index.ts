@@ -23,22 +23,19 @@ const messageResolvers = {
   },
 
   Mutation: {
-   sendMessage: async (
+    sendMessage: async (
       _: any,
       { senderId, groupId, content, type, attachments }: IMessageInput
     ): Promise<IMessage> => {
-      const sender = await User.findById(senderId);
-      if (!sender) throw new Error("Sender not found");
-
-      const group = await Group.findById(groupId);
-      if (!group) throw new Error("Group not found");
 
       const attachmentsArray = attachments ? attachments[0].split(',') : [];
       const cleanAttachments = attachmentsArray.filter(att =>
         att && mongoose.Types.ObjectId.isValid(att)
       );
+
       const urlRegex = /https?:\/\/[^\s]+/g;
-      const links=content?.match(urlRegex)
+      const links = content?.match(urlRegex)
+
       const newMessage = new Message({
         sender: senderId,
         group: groupId,
@@ -47,28 +44,32 @@ const messageResolvers = {
         attachments: cleanAttachments,
         createdAt: new Date(),
       });
-
       await newMessage.save();
-
-      group.messages.push({ message: newMessage._id });
-      if (links) {
-        links.forEach((link)=>group.links.push({link:link}))
+      const populatedMessage = (await newMessage.populate({
+        path:'sender',
+        select:"username profileImageUrl id"
       }
-      await group.save();
+      )).populate('attachments');
 
-      const populatedMessage = (await newMessage.populate('sender')).populate('attachments');
       await pubsub.publish(`MESSAGE_SENT_${groupId}`, {
         messageSent: populatedMessage,
       });
 
+      const group = await Group.findById(groupId);
+      if (!group) throw new Error("Group not found");
+      group.messages.push({ message: newMessage._id });
+      if (links) {
+        links.forEach((link) => group.links.push({ link: link }))
+      }
+      await group.save();
       return populatedMessage;
     },
   },
 
   Subscription: {
     messageSent: {
-      subscribe: (_: any, { groupId }: { groupId: string }) =>{
-       return  pubsub.asyncIterableIterator([`MESSAGE_SENT_${groupId}`]);
+      subscribe: (_: any, { groupId }: { groupId: string }) => {
+        return pubsub.asyncIterableIterator([`MESSAGE_SENT_${groupId}`]);
       }
     },
   }
