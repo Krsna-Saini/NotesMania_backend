@@ -57,7 +57,6 @@ const Airesolvers: IResolvers = {
         name,
         User: userId,
       });
-      console.log(newHistory)
       await newHistory.save();
       return newHistory;
     },
