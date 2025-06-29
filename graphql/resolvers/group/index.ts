@@ -278,7 +278,12 @@ export const GroupResolver = {
                 attachments: undefined,
                 createdAt: new Date()
             });
-            return (await groupToUpdate.populate('leader')).populate('members.member');
+            const User = await user.findById(userId);
+            if (User) {
+                User.groups = User.groups.filter((group) => group.group.toString() !== args.groupId);
+                await User.save();
+            }
+            return groupToUpdate;
         },
         getAttachments: async (_: unknown, { groupId }: { groupId: string }) => {
             const attachmentData = await attachment.find({ group: groupId }).populate("user")
