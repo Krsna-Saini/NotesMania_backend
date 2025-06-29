@@ -45,7 +45,9 @@ const Airesolvers: IResolvers = {
       
     },
     getAiChatById: async (_: unknown, { chatId }: GetChatArgs) => {
-      return await AiResponseHistory.findById(chatId);
+      const Chat= await AiResponseHistory.findById(chatId);
+      if (!Chat) throw new Error('Chat not found');
+      return Chat;
     },
   },
 
