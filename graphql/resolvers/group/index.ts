@@ -52,18 +52,13 @@ export const GroupResolver = {
             console.log("Fetching messages for group:", groupId);
 
             const query: any = { group: groupId };
-            // If a cursor (last message _id) is provided, fetch older messages
+
             if (cursor) {
                 query._id = { $lt: cursor };
             }
-            await new Promise(resolve=>{
-                return setTimeout(() => {
-                    resolve("resolved")
-                }, 4000);
-            })
-            // Fetch messages sorted by newest first
-            const messages = await message.find(query)
-                .sort({ _id: -1 }) // MongoDB ObjectId allows chronological sorting
+
+            let messages = await message.find(query)
+                .sort({ _id: -1 })
                 .limit(limit)
                 .populate({
                     path: "sender",
@@ -74,7 +69,11 @@ export const GroupResolver = {
                     select: "fileUrl fileType fileName uploadedAt",
                 })
                 .lean();
-               console.log(messages)
+
+            if (!cursor) {
+                messages = messages.reverse()
+            }
+
             const hasMore = messages.length === limit;
 
             return {
