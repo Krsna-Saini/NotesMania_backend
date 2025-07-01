@@ -70,6 +70,7 @@ export const GroupResolver = {
                 })
                 .lean();
 
+            // boundary condion for first time 
             if (!cursor) {
                 messages = messages.reverse()
             }
