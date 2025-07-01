@@ -63,9 +63,13 @@ export const groupTypeDefs = gql`
     groupId: ID!
     userId: ID!
   }
-
+  type PaginatedMessages {
+  messages: [Message!]!
+  hasMore: Boolean!
+   }
   extend type Query {
     getGroup(groupId: ID!): Group
+    listMessages(groupId: String!, cursor: String, limit: Int): PaginatedMessages
     listGroups: [Group!]!
   }
 

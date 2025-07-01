@@ -1,4 +1,5 @@
 import group from "../../../models/group";
+import message from "../../../models/message";
 import { IAddMemberInput, ICreateGroupInput, IGetGroupArgs, IGroupDocument } from "../../types/groupTypes";
 import mongoose from "mongoose";
 import { pubsub } from "../../../config/pubsub";
@@ -39,7 +40,49 @@ export const GroupResolver = {
         listGroups: async (_: unknown): Promise<IGroupDocument[]> => {
             return group.find().populate("leader").populate("members.member").sort({ createdAt: -1 });
 
-        }
+        },
+        listMessages: async (
+            _: unknown,
+            {
+                groupId,
+                cursor,
+                limit = 20,
+            }: { groupId: string; cursor?: string; limit?: number }
+        ): Promise<{ messages: any[]; hasMore: boolean }> => {
+            console.log("Fetching messages for group:", groupId);
+
+            const query: any = { group: groupId };
+            // If a cursor (last message _id) is provided, fetch older messages
+            if (cursor) {
+                query._id = { $lt: cursor };
+            }
+            await new Promise(resolve=>{
+                return setTimeout(() => {
+                    resolve("resolved")
+                }, 4000);
+            })
+            // Fetch messages sorted by newest first
+            const messages = await message.find(query)
+                .sort({ _id: -1 }) // MongoDB ObjectId allows chronological sorting
+                .limit(limit)
+                .populate({
+                    path: "sender",
+                    select: "id username email profileImageUrl",
+                })
+                .populate({
+                    path: "attachments",
+                    select: "fileUrl fileType fileName uploadedAt",
+                })
+                .lean();
+               console.log(messages)
+            const hasMore = messages.length === limit;
+
+            return {
+                messages,
+                hasMore,
+            };
+        },
+
     },
     Mutation: {
         createGroup: async (_: unknown, input: ICreateGroupInput): Promise<IGroupDocument> => {
@@ -283,7 +326,7 @@ export const GroupResolver = {
                 User.groups = User.groups.filter((group) => group.group.toString() !== args.groupId);
                 await User.save();
             }
-            return  (await groupToUpdate.populate('leader')).populate('members.member'); ;
+            return (await groupToUpdate.populate('leader')).populate('members.member');;
         },
         getAttachments: async (_: unknown, { groupId }: { groupId: string }) => {
             const attachmentData = await attachment.find({ group: groupId }).populate("user")
