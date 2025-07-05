@@ -4,7 +4,7 @@ export const groupTypeDefs = gql`
   scalar DateTime
   
   type User {
-    id: ID!
+    _id: ID!
     username: String!
     email: String!
     profilePicture: String
@@ -26,17 +26,17 @@ export const groupTypeDefs = gql`
   }
   type Links {
     link:String
-    id: ID!
+    _id: ID!
   }
 
   type Attachment {
-    id: ID!
+    _id: ID!
     url: String!
     type: String!
   }
 
   type Group {
-    id: ID!
+    _id: ID!
     name: String!
     description: String
     profilePicture: String

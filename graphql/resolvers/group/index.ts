@@ -11,29 +11,15 @@ import user from "../../../models/user";
 export const GroupResolver = {
     Query: {
         getGroup: async (_: unknown, { groupId }: IGetGroupArgs): Promise<IGroupDocument | null> => {
-            console.log("Fetching group with ID:", groupId);
+          
             const groupdata = await group.findById(groupId)
                 .populate("leader", "id username email profileImageUrl description")
                 .populate("admins.admin", "id username email profileImageUrl description")
                 .populate("members.member", "id username email profileImageUrl description")
-                .populate({
-                    path: "messages.message",
-                    populate: {
-                        path: "sender",
-                        select: "id username email profileImageUrl",
-                    },
-                })
-                .populate({
-                    path: "messages.message",
-                    populate: {
-                        path: "attachments",
-                        select: "fileUrl fileType fileName uploadedAt",
-                    },
-                })
                 .populate("pinnedMessages")
                 .populate("announcements")
-                .populate("attachments")
                 .populate("inviteRequests.user", "id username email profileImageUrl")
+                .lean()
                 .exec();
             return groupdata;
         },
@@ -329,7 +315,7 @@ export const GroupResolver = {
             return (await groupToUpdate.populate('leader')).populate('members.member');;
         },
         getAttachments: async (_: unknown, { groupId }: { groupId: string }) => {
-            const attachmentData = await attachment.find({ group: groupId }).populate("user")
+            const attachmentData = await attachment.find({ group: groupId }).lean()
             if (!attachmentData) {
                 throw new Error("Group not found");
             }
