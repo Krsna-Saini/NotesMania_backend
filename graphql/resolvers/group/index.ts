@@ -19,7 +19,6 @@ export const GroupResolver = {
                 .populate("pinnedMessages")
                 .populate("announcements")
                 .populate("inviteRequests.user", "id username email profileImageUrl")
-                .lean()
                 .exec();
             return groupdata;
         },
