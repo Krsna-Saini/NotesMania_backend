@@ -21,7 +21,6 @@ interface IInviteRequest {
   invitedAt?: Date;
 }
 export interface IGroupDocument extends Document {
-    
     name: string;
     description?: string;
     profilePicture?: string;

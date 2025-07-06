@@ -1,5 +1,6 @@
-import mongoose, { Document } from "mongoose";
+import mongoose from "mongoose";
 import { IMessage } from "../graphql/types/messageTypes";
+
 
 const messageSchema = new mongoose.Schema<IMessage>(
   {

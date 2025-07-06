@@ -4,7 +4,9 @@ import user from "../../../models/user";
 export const attachmentsResolvers = {
   Query: {
     getAttachments: async (_: unknown, { userId }: { userId: string }) => {
+
       const userDoc = await user.findById(userId).lean();
+
       if (!userDoc) return [];
 
       // Get user's own attachments
@@ -28,8 +30,10 @@ export const attachmentsResolvers = {
           },
         ])
         .lean();
+
       // Get all group-level attachments
       const groupIds = userDoc.groups.map((g) => g.group);
+
       const groupAttachments = await attachment.find({ group: { $in: groupIds } })
         .select("fileUrl fileName fileType uploadedAt tags group user")
         .populate([
@@ -50,8 +54,10 @@ export const attachmentsResolvers = {
           },
         ])
         .lean();
+
       const allAttachments = [...userAttachments, ...groupAttachments];
 
+      // formatting attachments 
       const formatted = allAttachments.map((att) => {
         const group = att.group as any;
         const uploader = att.user as any;

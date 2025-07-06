@@ -1,6 +1,6 @@
 import { gql } from 'apollo-server-express';
 
-const messageSchema = gql`
+export const messageTypedefs = gql`
   scalar Date
 
   type Subscription {
@@ -49,5 +49,3 @@ const messageSchema = gql`
     ): Message!
   }
 `;
-
-export default messageSchema;
