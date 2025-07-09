@@ -5,6 +5,7 @@ import { groupTypeDefs } from "./groupShemas";
 import AiResponsetypeDefs from "./AiResponse";
 import AttachmentDefs from "./attachment";
 import {queriesTypeDefs} from "./queries";
-const typeDefs = mergeTypeDefs([messageTypedefs,queriesTypeDefs, userTypeDefs,groupTypeDefs,AiResponsetypeDefs,AttachmentDefs]);
+import { blogTypeDefs } from "./blog";
+const typeDefs = mergeTypeDefs([blogTypeDefs,messageTypedefs,queriesTypeDefs, userTypeDefs,groupTypeDefs,AiResponsetypeDefs,AttachmentDefs]);
 
 export default typeDefs;
