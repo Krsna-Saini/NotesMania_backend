@@ -50,7 +50,11 @@ async function startServer() {
   });
 
   // Middleware setup
-  app.use(cors());
+  app.use(cors({
+    origin: 'https://notes-mania-frontend.vercel.app',
+    credentials: true,
+  }));
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   const storage = multer.memoryStorage();
