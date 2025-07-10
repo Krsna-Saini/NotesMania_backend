@@ -11,10 +11,14 @@ export interface Iblog extends Document {
         link:string,
         linkTitle?:string
     }],
-    visitors?:[{
+    visitors:[{
         user:mongoose.Types.ObjectId,
         visitedAt?:Date
     }],
+    views:[{
+        user:mongoose.Types.ObjectId,
+        viewedAt?:Date
+    }]
 }
 
 export interface inputCreateBlog{

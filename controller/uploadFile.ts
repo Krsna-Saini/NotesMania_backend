@@ -84,7 +84,7 @@ export const uploadfile = async (req: Request, res: Response) => {
         fileName: file.filename,
         fileUrl: file.url,
         fileType: file.filetype,
-        tags: tags, // <-- store tags array
+        tags: tags, 
       });
 
       await newAttachment.save();

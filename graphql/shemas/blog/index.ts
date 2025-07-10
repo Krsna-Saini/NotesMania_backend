@@ -10,7 +10,10 @@ export const blogTypeDefs = gql`
     user: User!
     visitedAt: String!
   }
-
+  type BlogViews {
+    user:User!
+    viewedAt:String!
+  }
   type Blog {
     _id: ID!
     creator: User!
@@ -20,6 +23,7 @@ export const blogTypeDefs = gql`
     content: String!
     externalLinks: [ExternalLink]
     visitors: [BlogVisitor]
+    views:[BlogViews]
     createdAt: String!
     updatedAt: String!
   }

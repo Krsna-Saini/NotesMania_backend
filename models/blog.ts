@@ -36,6 +36,16 @@ const blog = new mongoose.Schema<Iblog>({
             visitedAt: { type: Date, default: Date.now }
         }
     ],
+    views:[
+          {
+            user: { 
+                type: mongoose.Schema.Types.ObjectId, 
+                ref: "User", 
+                required: true 
+            },
+            viewedAt: { type: Date, default: Date.now }
+        }  
+    ]
 }, { timestamps: true })
 
 export default mongoose.model<Iblog>("Blog", blog)
