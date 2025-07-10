@@ -51,7 +51,7 @@ async function startServer() {
 
   // Middleware setup
   app.use(cors({
-    origin: ['http://localhost:3000', 'https://notes-mania-frontend.vercel.app/'], 
+    origin: ['http://localhost:3000', 'https://notes-mania-frontend.vercel.app'], 
     credentials: true
   }));
 
