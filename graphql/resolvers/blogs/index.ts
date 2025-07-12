@@ -8,16 +8,14 @@ export const blogResolvers = {
             return await blog.find()
                 .populate("creator", "_id username email profileImageUrl")
                 .populate("coverImage", "fileUrl")
-                .lean()
         },
 
         getBlogsByUser: async (_: unknown, { userId }: { userId: string }) => {
             return await blog.find({ creator: userId })
                 .populate("creator", "_id username email profileImageUrl")
                 .populate("coverImage", "fileUrl")
-                .populate("visitors", "_id username email profileImageUrl")
-                .populate("views","_id username email profileImageUrl")
-                .lean()
+                .populate("visitors.user", "_id username email profileImageUrl")
+                .populate("views.user","_id username email profileImageUrl")
         }
     },
     Mutation: {
