@@ -8,6 +8,7 @@ export const blogResolvers = {
             return await blog.find()
                 .populate("creator", "_id username email profileImageUrl")
                 .populate("coverImage", "fileUrl")
+                .lean()
         },
 
         getBlogsByUser: async (_: unknown, { userId }: { userId: string }) => {
@@ -16,6 +17,7 @@ export const blogResolvers = {
                 .populate("coverImage", "fileUrl")
                 .populate("visitors.user", "_id username email profileImageUrl")
                 .populate("views.user","_id username email profileImageUrl")
+                .lean()
         }
     },
     Mutation: {
