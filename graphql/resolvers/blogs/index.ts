@@ -15,8 +15,14 @@ export const blogResolvers = {
             return await blog.find({ creator: userId })
                 .populate("creator", "_id username email profileImageUrl")
                 .populate("coverImage", "fileUrl")
+                .lean()
+        },
+        getBlogById: async (_: unknown, { blogId }: { blogId: string }) => {
+            return await blog.findById(blogId)
+                .populate("creator", "_id username email profileImageUrl")
+                .populate("coverImage", "fileUrl")
                 .populate("visitors.user", "_id username email profileImageUrl")
-                .populate("views.user","_id username email profileImageUrl")
+                .populate("views.user", "_id username email profileImageUrl")
                 .lean()
         }
     },
@@ -57,13 +63,13 @@ export const blogResolvers = {
                 const Blog = await blog.findById(blogId);
                 if (!Blog) throw new Error(`Blog with ID ${blogId} not found`);
 
-                
+
 
                 // avoiding adding creator in visitor array
                 if (Blog.creator.toString() !== visitor) {
-                    
+
                     const visitorId = new mongoose.Types.ObjectId(visitor);
-                    Blog.views.push({user:visitorId})
+                    Blog.views.push({ user: visitorId })
 
                     // avoiding adding visitors that are already in visitor array
                     if (!Blog.visitors?.some(item => item.user.toString() === visitorId.toString())) {

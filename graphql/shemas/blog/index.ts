@@ -49,6 +49,7 @@ export const blogTypeDefs = gql`
   type Query {
     getBlogs: [Blog!]!
     getBlogsByUser(userId: ID!): [Blog!]!
+    getBlogById(blogId:ID!):Blog
   }
 
   type Mutation {
