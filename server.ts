@@ -17,7 +17,7 @@ import { makeExecutableSchema } from '@graphql-tools/schema';
 import { WebSocketServer } from 'ws';
 import { useServer } from 'graphql-ws/use/ws';
 async function startServer() {
-  const app: Express = express();
+   const app: Express = express();
   const httpServer = http.createServer(app);
 
   // Create WebSocket server
@@ -50,17 +50,14 @@ async function startServer() {
   });
 
   // Middleware setup
-  app.use(cors({
-    origin: ['http://localhost:3000', 'https://notes-mania-frontend.vercel.app'], 
-    credentials: true
-  }));
-
+  app.use(cors());
+  
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   const storage = multer.memoryStorage();
   const upload = multer({ storage: storage });
 
-
+ 
   await connectDB();
   await server.start();
 
@@ -75,8 +72,8 @@ async function startServer() {
 
   // REST endpoint
   app.post("/api/chat", handleChatWithAi);
-  app.post("/upload", upload.array('files'), uploadfile);
-  app.get("/", (req, res) => {
+  app.post("/upload",upload.array('files'),uploadfile);
+  app.get("/",(req,res)=>{
     res.send("hello")
   })
   // Error handling
