@@ -52,7 +52,7 @@ const startServer = async () => {
   });
 
   // 3. Setup Middleware
-  app.use(cors());
+  app.use(cors({ origin: "*", methods: ["GET", "POST"] }));
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   const upload = multer({ storage: multer.memoryStorage() });
@@ -102,11 +102,11 @@ const startServer = async () => {
     res.status(500).json({ error: 'Internal server error' });
   });
 
-  const PORT = Number(process.env.PORT) || 3000;
-  httpServer.listen(PORT, "0.0.0.0", () => {
-  console.log(`🚀 Server ready at http://0.0.0.0:${PORT}/graphql`);
-});
-
+  const PORT = process.env.PORT || 3000;
+  httpServer.listen(PORT, () => {
+    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
+    console.log(`📡 Health check at http://localhost:${PORT}/health`);
+  });
 };
 
 startServer().catch(err => {
