@@ -102,11 +102,11 @@ const startServer = async () => {
     res.status(500).json({ error: 'Internal server error' });
   });
 
-  const PORT = process.env.PORT || 3000;
-  httpServer.listen(PORT, () => {
-    console.log(`🚀 Server ready at http://localhost:${PORT}/graphql`);
-    console.log(`📡 Health check at http://localhost:${PORT}/health`);
-  });
+  const PORT = Number(process.env.PORT) || 3000;
+  httpServer.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server ready at http://0.0.0.0:${PORT}/graphql`);
+});
+
 };
 
 startServer().catch(err => {
