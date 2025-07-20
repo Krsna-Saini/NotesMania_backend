@@ -41,13 +41,22 @@ export const blogTypeDefs = gql`
     content: String!
     externalLinks: [ExternalLinkInput]
   }
+  
+  type PaginatedBlogs {
+    blogs: [Blog]
+    currentPage: Int
+    totalPages: Int
+    totalBlogs: Int
+    topViewed: [Blog]
+    topVisited: [Blog]
+  }
 
   type MessageResponse {
     message: String!
   }
 
   type Query {
-    getBlogs: [Blog!]!
+    getBlogs(page:Int): PaginatedBlogs
     getBlogsByUser(userId: ID!): [Blog!]!
     getBlogById(blogId:ID!):Blog
   }

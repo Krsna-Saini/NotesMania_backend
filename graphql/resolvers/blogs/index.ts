@@ -4,11 +4,108 @@ import { inputCreateBlog } from "../../types/blog"
 export const blogResolvers = {
     Query: {
 
-        getBlogs: async (_: unknown) => {
-            return await blog.find()
-                .populate("creator", "_id username email profileImageUrl")
-                .populate("coverImage", "fileUrl")
-                .lean()
+        getBlogs: async (_: unknown, { page = 1 }) => {
+
+            const limit = 6;
+            const skip = (page - 1) * limit;
+
+            const [blogs, total, topViewed, topVisited] = await Promise.all([
+
+                // collecting blogs
+                blog.find()
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit)
+                    .populate("creator", "_id username email profileImageUrl")
+                    .populate("coverImage", "fileUrl")
+                    .lean(),
+
+                // total blogs
+                blog.countDocuments(),
+
+                // aggregating most viewed top 3 
+                blog.aggregate([
+                    {
+                        $addFields: {
+                            viewsCount: {
+                                $size: "$views"
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            viewsCount: -1
+                        }
+                    },
+                    {
+                        $limit: 3
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "creator",
+                            foreignField: "_id",
+                            as: "creator"
+                        }
+                    },
+                    { $unwind: "$creator" },
+                    {
+                        $lookup: {
+                            from: "attachments",
+                            localField: "coverImage",
+                            foreignField: "_id",
+                            as: "coverImage"
+                        }
+                    },
+                    { $unwind:"$coverImage" }
+                ]),
+
+                // aggregating most visited top 3 blogs
+                blog.aggregate([
+                    {
+                        $addFields: {
+                            visitedCount: {
+                                $size: "$visitors"
+                            }
+                        }
+                    },
+                    {
+                        $sort: {
+                            visitedCount: -1
+                        }
+                    },
+                    {
+                        $limit: 3
+                    },
+                    {
+                        $lookup: {
+                            from: "users",
+                            localField: "creator",
+                            foreignField: "_id",
+                            as: "creator"
+                        }
+                    },
+                    { $unwind: "$creator" },
+                    {
+                        $lookup: {
+                            from: "attachments",
+                            localField: "coverImage",
+                            foreignField: "_id",
+                            as: "coverImage"
+                        }
+                    },
+                    { $unwind: { path: "$coverImage", preserveNullAndEmptyArrays: true } }
+                ])
+            ]);
+            return {
+                blogs,
+                currentPage: page,
+                totalPages: Math.ceil(total / limit),
+                totalBlogs: total,
+                topViewed,
+                topVisited
+
+            }
         },
 
         getBlogsByUser: async (_: unknown, { userId }: { userId: string }) => {
