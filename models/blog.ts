@@ -6,10 +6,10 @@ const blog = new mongoose.Schema<Iblog>({
         ref: "User",
         required: true
     },
-    coverImage: { 
-        type: mongoose.Schema.Types.ObjectId, 
+    coverImage: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: "Attachment",
-        required:true
+        required: true
     },
     tags: [String],
     heading: {
@@ -28,24 +28,33 @@ const blog = new mongoose.Schema<Iblog>({
     ],
     visitors: [
         {
-            user: { 
-                type: mongoose.Schema.Types.ObjectId, 
-                ref: "User", 
-                required: true 
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                required: true
             },
             visitedAt: { type: Date, default: Date.now }
         }
     ],
-    views:[
-          {
-            user: { 
-                type: mongoose.Schema.Types.ObjectId, 
-                ref: "User", 
-                required: true 
+    views: [
+        {
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User",
+                required: true
             },
             viewedAt: { type: Date, default: Date.now }
-        }  
-    ]
+        }
+    ],
+    viewsCount: {
+        type: Number,
+        default: 0
+    },
+    visitorsCount: {
+        type: Number,
+        default: 0
+    }
+
 }, { timestamps: true })
 
 export default mongoose.model<Iblog>("Blog", blog)

@@ -18,7 +18,9 @@ export interface Iblog extends Document {
     views:[{
         user:mongoose.Types.ObjectId,
         viewedAt?:Date
-    }]
+    }],
+    viewsCount:number,
+    visitorsCount:number
 }
 
 export interface inputCreateBlog{

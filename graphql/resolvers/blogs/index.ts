@@ -24,78 +24,20 @@ export const blogResolvers = {
                 blog.countDocuments(),
 
                 // aggregating most viewed top 3 
-                blog.aggregate([
-                    {
-                        $addFields: {
-                            viewsCount: {
-                                $size: "$views"
-                            }
-                        }
-                    },
-                    {
-                        $sort: {
-                            viewsCount: -1
-                        }
-                    },
-                    {
-                        $limit: 3
-                    },
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "creator",
-                            foreignField: "_id",
-                            as: "creator"
-                        }
-                    },
-                    { $unwind: "$creator" },
-                    {
-                        $lookup: {
-                            from: "attachments",
-                            localField: "coverImage",
-                            foreignField: "_id",
-                            as: "coverImage"
-                        }
-                    },
-                    { $unwind:"$coverImage" }
-                ]),
+                blog.find()
+                    .sort({ viewsCount: -1 })
+                    .limit(3)
+                    .populate("creator", "_id username email profileImageUrl")
+                    .populate("coverImage", "fileUrl")
+                    .lean(),
 
                 // aggregating most visited top 3 blogs
-                blog.aggregate([
-                    {
-                        $addFields: {
-                            visitedCount: {
-                                $size: "$visitors"
-                            }
-                        }
-                    },
-                    {
-                        $sort: {
-                            visitedCount: -1
-                        }
-                    },
-                    {
-                        $limit: 3
-                    },
-                    {
-                        $lookup: {
-                            from: "users",
-                            localField: "creator",
-                            foreignField: "_id",
-                            as: "creator"
-                        }
-                    },
-                    { $unwind: "$creator" },
-                    {
-                        $lookup: {
-                            from: "attachments",
-                            localField: "coverImage",
-                            foreignField: "_id",
-                            as: "coverImage"
-                        }
-                    },
-                    { $unwind: { path: "$coverImage", preserveNullAndEmptyArrays: true } }
-                ])
+                blog.find()
+                    .sort({ visitorsCount: -1 })
+                    .limit(3)
+                    .populate("creator", "_id username email profileImageUrl")
+                    .populate("coverImage", "fileUrl")
+                    .lean()
             ]);
             return {
                 blogs,
@@ -175,7 +117,8 @@ export const blogResolvers = {
                         Blog.visitors?.push({ user: visitorId });
                     }
                 }
-
+                Blog.viewsCount = Blog.views.length;
+                Blog.visitorsCount = Blog.visitors.length;
                 return await Blog.save();
             } catch (error: any) {
                 console.error("Error in handleVisitor:", error.message);
