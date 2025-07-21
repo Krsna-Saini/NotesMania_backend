@@ -3,16 +3,24 @@ import blog from "../../../models/blog"
 import { inputCreateBlog } from "../../types/blog"
 export const blogResolvers = {
     Query: {
-
-        getBlogs: async (_: unknown, { page = 1 }) => {
+        getBlogs: async (_: unknown, { page = 1, query = "" }) => {
 
             const limit = 6;
             const skip = (page - 1) * limit;
 
+            const filter = query
+                ? {
+                    $or: [
+                        { heading: { $regex: query, $options: "i" } },
+                        { content: { $regex: query, $options: "i" } }
+                    ]
+                }
+                : {};
+
             const [blogs, total, topViewed, topVisited] = await Promise.all([
 
                 // collecting blogs
-                blog.find()
+                blog.find(filter)
                     .sort({ createdAt: -1 })
                     .skip(skip)
                     .limit(limit)
@@ -21,7 +29,7 @@ export const blogResolvers = {
                     .lean(),
 
                 // total blogs
-                blog.countDocuments(),
+                blog.countDocuments(filter),
 
                 // aggregating most viewed top 3 
                 blog.find()
@@ -49,7 +57,6 @@ export const blogResolvers = {
 
             }
         },
-
         getBlogsByUser: async (_: unknown, { userId }: { userId: string }) => {
             return await blog.find({ creator: userId })
                 .populate("creator", "_id username email profileImageUrl")

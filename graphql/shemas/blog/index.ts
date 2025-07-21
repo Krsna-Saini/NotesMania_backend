@@ -56,7 +56,7 @@ export const blogTypeDefs = gql`
   }
 
   type Query {
-    getBlogs(page:Int): PaginatedBlogs
+    getBlogs(page:Int , query:String): PaginatedBlogs
     getBlogsByUser(userId: ID!): [Blog!]!
     getBlogById(blogId:ID!):Blog
   }
