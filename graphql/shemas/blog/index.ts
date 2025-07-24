@@ -24,8 +24,8 @@ export const blogTypeDefs = gql`
     externalLinks: [ExternalLink]
     visitors: [BlogVisitor]
     views:[BlogViews]
-    createdAt: String!
-    updatedAt: String!
+    createdAt: Date!
+    updatedAt: Date!
   }
 
   input ExternalLinkInput {
