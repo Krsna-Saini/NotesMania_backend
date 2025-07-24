@@ -29,9 +29,6 @@ const startServer = async () => {
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
   const serverCleanup = useServer({ schema }, wsServer);
-  wsServer.on("connection", () => {
-    console.log("🔌 WebSocket connected");
-  });
 
   // 2. Setup Apollo Server
   const server = new ApolloServer<IContext>({

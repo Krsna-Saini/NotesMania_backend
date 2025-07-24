@@ -11,7 +11,7 @@ export const SearchResolver = {
         search: async (_: unknown, { query, userId }: { query: string, userId: string }) => {
             try {
                 // serachig for users
-                setTimeout(async() => {
+                setTimeout(async () => {
                     const Users = await user.find({
                         $or: [
                             { username: { $regex: query, $options: 'i' } },
@@ -29,10 +29,10 @@ export const SearchResolver = {
                         }
                     })
                 }, 300);
-                    
+
 
                 // searching for groups
-                setTimeout(async() => {
+                setTimeout(async () => {
                     const Groups = await group.find({
                         $or: [
                             { name: { $regex: query, $options: 'i' } },
@@ -52,11 +52,16 @@ export const SearchResolver = {
                 }, 600);
 
                 // searching for attachments
-                setTimeout(async() => {
+                setTimeout(async () => {
                     const Attachments = await attachment.find({
                         $or: [
                             { fileName: { $regex: query, $options: 'i' } },
                             { fileType: { $regex: query, $options: 'i' } },
+                            {
+                                tags: {
+                                    $elematch: { $regex: query, $option: 'i' }
+                                }
+                            }
                         ]
                     })
                         .select("fileUrl fileName fileType uploadedAt tags group user")
@@ -72,11 +77,21 @@ export const SearchResolver = {
                 }, 900);
 
                 // searching for blogs
-                setTimeout(async() => {
+                setTimeout(async () => {
                     const Blogs = await blog.find({
                         $or: [
                             { heading: { $regex: query, $options: 'i' } },
-                            { content: { $regex: query, $options: 'i' } }
+                            { content: { $regex: query, $options: 'i' } },
+                            {
+                                tags: {
+                                    $elematch: { $regex: query, $option: 'i' }
+                                }
+                            },
+                            {
+                                externalLinks:{
+                                    $elematch: { $regex: query, $option: 'i' }
+                                }
+                            }
                         ]
                     })
                         .populate("creator", "_id username email profileImageUrl")
@@ -93,19 +108,19 @@ export const SearchResolver = {
                 }, 1200);
 
                 // searching for messages
-                setTimeout(async() => {
+                setTimeout(async () => {
                     const Messages = await message.find({
                         $and: [
                             { sender: userId },
                             {
-                            content: { $regex: query, $options: 'i' },
+                                content: { $regex: query, $options: 'i' },
                             }]
                     })
                         .populate('sender')
                         .populate('group')
                         .lean()
 
-                   await  pubsub.publish('SEARCH_MESSAGES', {
+                    await pubsub.publish('SEARCH_MESSAGES', {
                         searchProgress: {
                             type: "message",
                             status: "done",
