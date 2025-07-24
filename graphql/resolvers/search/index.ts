@@ -79,7 +79,6 @@ export const SearchResolver = {
                             { heading: { $regex: query, $options: 'i' } },
                             { content: { $regex: query, $options: 'i' } },
                             { tags: { $regex: query, $options: "i" }},
-                            {externalLinks:{ $regex: query, $options: "i" }}
                         ]
                     })
                         .populate("creator", "_id username email profileImageUrl")
