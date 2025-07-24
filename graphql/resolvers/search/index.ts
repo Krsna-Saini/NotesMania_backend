@@ -57,11 +57,7 @@ export const SearchResolver = {
                         $or: [
                             { fileName: { $regex: query, $options: 'i' } },
                             { fileType: { $regex: query, $options: 'i' } },
-                            {
-                                tags: {
-                                    $elematch: { $regex: query, $option: 'i' }
-                                }
-                            }
+                            {tags: { $regex: query, $options: "i" }}
                         ]
                     })
                         .select("fileUrl fileName fileType uploadedAt tags group user")
@@ -82,16 +78,8 @@ export const SearchResolver = {
                         $or: [
                             { heading: { $regex: query, $options: 'i' } },
                             { content: { $regex: query, $options: 'i' } },
-                            {
-                                tags: {
-                                    $elematch: { $regex: query, $option: 'i' }
-                                }
-                            },
-                            {
-                                externalLinks:{
-                                    $elematch: { $regex: query, $option: 'i' }
-                                }
-                            }
+                            { tags: { $regex: query, $options: "i" }},
+                            {externalLinks:{ $regex: query, $options: "i" }}
                         ]
                     })
                         .populate("creator", "_id username email profileImageUrl")
