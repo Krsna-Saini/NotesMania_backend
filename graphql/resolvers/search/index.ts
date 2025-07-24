@@ -28,7 +28,6 @@ export const SearchResolver = {
                             data: Users
                         }
                     })
-                    console.log("user published successfully");
                 }, 300);
 
 
@@ -50,7 +49,6 @@ export const SearchResolver = {
                             data: Groups
                         }
                     })
-                    console.log(" group published successfully");
                 }, 600);
 
                 // searching for attachments
@@ -72,7 +70,6 @@ export const SearchResolver = {
                             data: Attachments
                         }
                     })
-                    console.log("✅ attachment published successfully");
                 }, 900);
 
                 // searching for blogs
@@ -95,7 +92,6 @@ export const SearchResolver = {
                             data: Blogs
                         }
                     })
-                    console.log("blog published successfully");
                 }, 1200);
 
                 // searching for messages
@@ -118,7 +114,6 @@ export const SearchResolver = {
                             data: Messages
                         }
                     })
-                    console.log("✅ SEARCH_MESSAGES published successfully");
                 }, 1500);
                 return true;
             } catch (error) {
