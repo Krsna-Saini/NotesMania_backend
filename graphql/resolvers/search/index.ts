@@ -11,6 +11,7 @@ export const SearchResolver = {
         search: async (_: unknown, { query, userId }: { query: string, userId: string }) => {
             try {
                 // serachig for users
+                setTimeout(async() => {
                     const Users = await user.find({
                         $or: [
                             { username: { $regex: query, $options: 'i' } },
@@ -27,8 +28,11 @@ export const SearchResolver = {
                             data: Users
                         }
                     })
+                }, 300);
+                    
 
                 // searching for groups
+                setTimeout(async() => {
                     const Groups = await group.find({
                         $or: [
                             { name: { $regex: query, $options: 'i' } },
@@ -45,8 +49,10 @@ export const SearchResolver = {
                             data: Groups
                         }
                     })
-                
+                }, 600);
+
                 // searching for attachments
+                setTimeout(async() => {
                     const Attachments = await attachment.find({
                         $or: [
                             { fileName: { $regex: query, $options: 'i' } },
@@ -63,8 +69,10 @@ export const SearchResolver = {
                             data: Attachments
                         }
                     })
+                }, 900);
 
                 // searching for blogs
+                setTimeout(async() => {
                     const Blogs = await blog.find({
                         $or: [
                             { heading: { $regex: query, $options: 'i' } },
@@ -82,8 +90,10 @@ export const SearchResolver = {
                             data: Blogs
                         }
                     })
+                }, 1200);
 
                 // searching for messages
+                setTimeout(async() => {
                     const Messages = await message.find({
                         $and: [
                             { sender: userId },
@@ -102,6 +112,7 @@ export const SearchResolver = {
                             data: Messages
                         }
                     })
+                }, 1500);
                 return true;
             } catch (error) {
                 throw new Error(`Search failed`);
