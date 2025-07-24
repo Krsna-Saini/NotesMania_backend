@@ -6,6 +6,7 @@ import AiResponsetypeDefs from "./AiResponse";
 import AttachmentDefs from "./attachment";
 import {queriesTypeDefs} from "./queries";
 import { blogTypeDefs } from "./blog";
-const typeDefs = mergeTypeDefs([blogTypeDefs,messageTypedefs,queriesTypeDefs, userTypeDefs,groupTypeDefs,AiResponsetypeDefs,AttachmentDefs]);
+import { searchSchema } from "./search";
+const typeDefs = mergeTypeDefs([blogTypeDefs,searchSchema,messageTypedefs,queriesTypeDefs, userTypeDefs,groupTypeDefs,AiResponsetypeDefs,AttachmentDefs]);
 
 export default typeDefs;

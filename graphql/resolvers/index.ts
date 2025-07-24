@@ -6,6 +6,7 @@ import Airesolvers from "./AiResponse";
 import { attachmentsResolvers } from "./attachments";
 import { queryResolver } from "./queries";
 import { blogResolvers } from "./blogs";
-const resolvers = mergeResolvers([blogResolvers,messageResolversAlias, userResolvers,GroupResolver,Airesolvers,attachmentsResolvers,queryResolver]);
+import { SearchResolver } from "./search";
+const resolvers = mergeResolvers([SearchResolver,blogResolvers,messageResolversAlias, userResolvers,GroupResolver,Airesolvers,attachmentsResolvers,queryResolver]);
 
 export default resolvers;
