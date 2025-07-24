@@ -28,6 +28,7 @@ export const SearchResolver = {
                             data: Users
                         }
                     })
+                    console.log("user published successfully");
                 }, 300);
 
 
@@ -49,6 +50,7 @@ export const SearchResolver = {
                             data: Groups
                         }
                     })
+                    console.log(" group published successfully");
                 }, 600);
 
                 // searching for attachments
@@ -57,7 +59,7 @@ export const SearchResolver = {
                         $or: [
                             { fileName: { $regex: query, $options: 'i' } },
                             { fileType: { $regex: query, $options: 'i' } },
-                            {tags: { $regex: query, $options: "i" }}
+                            { tags: { $regex: query, $options: "i" } }
                         ]
                     })
                         .select("fileUrl fileName fileType uploadedAt tags group user")
@@ -70,6 +72,7 @@ export const SearchResolver = {
                             data: Attachments
                         }
                     })
+                    console.log("✅ attachment published successfully");
                 }, 900);
 
                 // searching for blogs
@@ -78,7 +81,7 @@ export const SearchResolver = {
                         $or: [
                             { heading: { $regex: query, $options: 'i' } },
                             { content: { $regex: query, $options: 'i' } },
-                            { tags: { $regex: query, $options: "i" }},
+                            { tags: { $regex: query, $options: "i" } },
                         ]
                     })
                         .populate("creator", "_id username email profileImageUrl")
@@ -92,6 +95,7 @@ export const SearchResolver = {
                             data: Blogs
                         }
                     })
+                    console.log("blog published successfully");
                 }, 1200);
 
                 // searching for messages
@@ -114,6 +118,7 @@ export const SearchResolver = {
                             data: Messages
                         }
                     })
+                    console.log("✅ SEARCH_MESSAGES published successfully");
                 }, 1500);
                 return true;
             } catch (error) {
@@ -123,11 +128,21 @@ export const SearchResolver = {
     },
     Subscription: {
         searchProgress: {
-            subscribe: () => {
-                return pubsub.asyncIterableIterator(['SEARCH_USERS', 'SEARCH_GROUPS', 'SEARCH_ATTACHMENTS', 'SEARCH_BLOGS', 'SEARCH_MESSAGES']);
-            }
-        }
+            subscribe: (_: any, __: any, context: any) => {
+                console.log("🟢 Client subscribed to `searchProgress`");
+                return pubsub.asyncIterableIterator([
+                    'SEARCH_USERS',
+                    'SEARCH_GROUPS',
+                    'SEARCH_ATTACHMENTS',
+                    'SEARCH_BLOGS',
+                    'SEARCH_MESSAGES',
+                    'SEARCH_COMPLETE'
+                ]);
+            },
+        },
     },
+
+
     SearchResultData: {
         __resolveType(obj: { username: any; email: any; name: any; leader: any; heading: any; content: any; fileUrl: any; fileName: any; sender: any; }) {
             if (obj.username && obj.email) return "User";
