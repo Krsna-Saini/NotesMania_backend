@@ -10,7 +10,8 @@ const AiResponsetypeDefs = gql`
   }
 
   type AiResponseHistory {
-    id: ID!
+    _id: ID
+    id: ID
     name: String!
     User: String!
     Messages: [Message!]!

@@ -2,7 +2,7 @@ import { gql } from "apollo-server-express";
 
 export const searchSchema = gql`
     
-  union SearchResultData = User | Group | Attachment | Blog | Message
+  union SearchResultData = User | Group | Attachment | Blog | Message | AiResponseHistory | Queries
 
   type SearchProgressPayload {
     type: String!       
