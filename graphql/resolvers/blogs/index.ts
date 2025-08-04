@@ -1,6 +1,7 @@
 import mongoose from "mongoose"
 import blog from "../../../models/blog"
 import { inputCreateBlog } from "../../types/blog"
+import Comment from "../../../models/comments";
 export const blogResolvers = {
     Query: {
         getBlogs: async (_: unknown, { page = 1, query = "" }) => {
@@ -57,6 +58,29 @@ export const blogResolvers = {
 
             }
         },
+        getComments: async (_: unknown, { blogId }: { blogId: string }) => {
+            try {
+                const blogPost = await blog.findById(blogId).populate({
+                    path: 'comments',
+                    populate: {
+                        path: 'replies',
+                        populate: {
+                            path: 'replies',
+                        },
+                    },
+                });
+
+                if (!blogPost) {
+                    throw new Error("Blog not found");
+                }
+
+                return blogPost.comments; // or format it if needed
+            } catch (error: any) {
+                console.error("Error getting comments:", error.message);
+                throw new Error("Failed to fetch comments");
+            }
+        },
+
         getBlogsByUser: async (_: unknown, { userId }: { userId: string }) => {
             return await blog.find({ creator: userId })
                 .populate("creator", "_id username email profileImageUrl")
@@ -144,8 +168,95 @@ export const blogResolvers = {
                 console.error("Error deleting blog:", error.message);
                 throw new Error(`Failed to delete blog. Reason: ${error.message}`);
             }
-        }
+        },
+        addComment: async (_: unknown, { blogId, userId, comment }: { blogId: string, userId: string, comment: string },): Promise<string> => {
+            try {
+                const blogPost = await blog.findById(blogId);
+                if (!blogPost) {
+                    throw new Error(`Blog with ID ${blogId} not found`);
+                }
+                const newComment = new Comment({
+                    user: userId,
+                    comment
+                })
+                await newComment.save();
+                blogPost.comments.push(newComment._id);
+                await blogPost.save();
+                return "Comment added successfully";
+            } catch (error: any) {
+                console.error("Error adding comment:", error.message);
+                throw new Error("Failed to add comment. Please try again later.");
+            }
+        },
+        addReply: async (_: unknown, { commentId, userId, reply }: { commentId: string, userId: string, reply: string }): Promise<string> => {
+            try {
+                const comment = await Comment.findById(commentId);
+                if (!comment) {
+                    throw new Error("Comment not found");
+                }
+                const replyComment = new Comment({
+                    user: userId,
+                    comment: reply
+                })
+                await replyComment.save();
+                comment.replies?.push(replyComment.id);
+                await comment.save();
+                return "comment done sucessfully";
+            } catch (error: any) {
+                console.error("Error adding comment:", error.message);
+                throw new Error("Failed to add comment. Please try again later.");
+            }
+        },
+        deleteComment: async (_: unknown, { commentId }: { commentId: string }): Promise<string> => {
+            try {
+                const comment = await Comment.findById(commentId);
+                if (!comment) {
+                    throw new Error("Comment not found");
+                }
 
+                // Recursively delete all nested replies
+                const deleteRepliesRecursively = async (commentId: string) => {
+                    const comment = await Comment.findById(commentId);
+                    if (!comment) return;
+
+                    for (const replyId of comment.replies || []) {
+                        await deleteRepliesRecursively(replyId.toString());
+                    }
+
+                    await Comment.findByIdAndDelete(commentId);
+                };
+
+                await deleteRepliesRecursively(commentId);
+
+                // Also remove this comment from blog or parent comment
+                await blog.updateMany({}, { $pull: { comments: commentId } });
+                await Comment.updateMany({}, { $pull: { replies: commentId } });
+
+                return "Comment and nested replies deleted successfully";
+            } catch (error: any) {
+                console.error("Error deleting comment:", error.message);
+                throw new Error("Failed to delete comment");
+            }
+        },
+        deleteReply: async (_: unknown, { parentCommentId, replyCommentId }: { parentCommentId: string, replyCommentId: string }): Promise<string> => {
+            try {
+                const parent = await Comment.findById(parentCommentId);
+                if (!parent) {
+                    throw new Error("Parent comment not found");
+                }
+
+                // Remove the reply from replies array
+                parent.replies = parent.replies?.filter(id => id.toString() !== replyCommentId);
+                await parent.save();
+
+                // Delete the reply comment document itself
+                await Comment.findByIdAndDelete(replyCommentId);
+
+                return "Reply deleted successfully";
+            } catch (error: any) {
+                console.error("Error deleting reply:", error.message);
+                throw new Error("Failed to delete reply");
+            }
+        },
     }
-
 }

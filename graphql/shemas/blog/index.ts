@@ -1,6 +1,8 @@
 import { gql } from "apollo-server-express";
 
 export const blogTypeDefs = gql`
+  scalar Date
+
   type ExternalLink {
     link: String
     linkTitle: String
@@ -10,10 +12,26 @@ export const blogTypeDefs = gql`
     user: User!
     visitedAt: String!
   }
+
   type BlogViews {
-    user:User!
-    viewedAt:String!
+    user: User!
+    viewedAt: String!
   }
+
+  type Attachment {
+    _id: ID!
+    fileUrl: String!
+  }
+
+  type Comment {
+    _id: ID!
+    user: User!
+    comment: String!
+    replies: [Comment!]
+    createdAt: Date!
+    updatedAt: Date!
+  }
+
   type Blog {
     _id: ID!
     creator: User!
@@ -23,7 +41,8 @@ export const blogTypeDefs = gql`
     content: String!
     externalLinks: [ExternalLink]
     visitors: [BlogVisitor]
-    views:[BlogViews]
+    views: [BlogViews]
+    comments: [Comment!]
     createdAt: Date!
     updatedAt: Date!
   }
@@ -41,7 +60,7 @@ export const blogTypeDefs = gql`
     content: String!
     externalLinks: [ExternalLinkInput]
   }
-  
+
   type PaginatedBlogs {
     blogs: [Blog]
     currentPage: Int
@@ -56,9 +75,10 @@ export const blogTypeDefs = gql`
   }
 
   type Query {
-    getBlogs(page:Int , query:String): PaginatedBlogs
+    getBlogs(page: Int, query: String): PaginatedBlogs
     getBlogsByUser(userId: ID!): [Blog!]!
-    getBlogById(blogId:ID!):Blog
+    getBlogById(blogId: ID!): Blog
+    getComments(blogId: ID!): [Comment!]!
   }
 
   type Mutation {
@@ -73,5 +93,10 @@ export const blogTypeDefs = gql`
 
     handleVisitor(visitor: ID!, blogId: ID!): Blog!
     handleDeleteBlog(blogId: ID!): MessageResponse!
+
+    addComment(blogId: ID!, userId: ID!, comment: String!): String!
+    addReply(commentId: ID!, userId: ID!, reply: String!): String!
+    deleteComment(commentId: ID!): String!
+    deleteReply(parentCommentId: ID!, replyCommentId: ID!): String!
   }
 `;

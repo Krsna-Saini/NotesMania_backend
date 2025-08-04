@@ -1,6 +1,11 @@
 import mongoose, { Document } from "mongoose"
 
-
+export interface INestedComment {
+  user: mongoose.Types.ObjectId;
+  comment: string;
+  createdAt?: Date;
+  replies?: INestedComment[]; // <-- infinite nesting
+}
 export interface Iblog extends Document {
     creator:mongoose.Types.ObjectId,
     coverImage:mongoose.Types.ObjectId,
@@ -19,6 +24,7 @@ export interface Iblog extends Document {
         user:mongoose.Types.ObjectId,
         viewedAt?:Date
     }],
+    comments:INestedComment[],
     viewsCount:number,
     visitorsCount:number
 }

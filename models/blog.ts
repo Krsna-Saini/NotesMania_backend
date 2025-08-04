@@ -1,60 +1,67 @@
-import mongoose from "mongoose"
-import { Iblog } from "../graphql/types/blog"
+
+import mongoose from "mongoose";
+import { Iblog } from "../graphql/types/blog";
+
 const blog = new mongoose.Schema<Iblog>({
-    creator: {
+  creator: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true
+  },
+  coverImage: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Attachment",
+    required: true
+  },
+  tags: [String],
+  heading: {
+    type: String,
+    required: true
+  },
+  content: {
+    type: String,
+    required: true
+  },
+  externalLinks: [
+    {
+      link: { type: String },
+      linkTitle: { type: String }
+    }
+  ],
+  visitors: [
+    {
+      user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",
         required: true
-    },
-    coverImage: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Attachment",
-        required: true
-    },
-    tags: [String],
-    heading: {
-        type: String,
-        required: true,
-    },
-    content: {
-        type: String,
-        required: true
-    },
-    externalLinks: [
-        {
-            link: { type: String },
-            linkTitle: { type: String }
-        }
-    ],
-    visitors: [
-        {
-            user: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                required: true
-            },
-            visitedAt: { type: Date, default: Date.now }
-        }
-    ],
-    views: [
-        {
-            user: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "User",
-                required: true
-            },
-            viewedAt: { type: Date, default: Date.now }
-        }
-    ],
-    viewsCount: {
-        type: Number,
-        default: 0
-    },
-    visitorsCount: {
-        type: Number,
-        default: 0
+      },
+      visitedAt: { type: Date, default: Date.now }
     }
+  ],
+  views: [
+    {
+      user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+        required: true
+      },
+      viewedAt: { type: Date, default: Date.now }
+    }
+  ],
+  comments: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Comment"
+    }
+  ],
+  viewsCount: {
+    type: Number,
+    default: 0
+  },
+  visitorsCount: {
+    type: Number,
+    default: 0
+  }
+}, { timestamps: true });
 
-}, { timestamps: true })
-
-export default mongoose.model<Iblog>("Blog", blog)
+export default mongoose.model<Iblog>("Blog", blog);
