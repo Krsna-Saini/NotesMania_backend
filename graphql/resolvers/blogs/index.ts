@@ -60,7 +60,8 @@ export const blogResolvers = {
         },
         getComments: async (_: unknown, { blogId }: { blogId: string }) => {
             try {
-                const blogPost = await blog.findById(blogId).populate({
+                const blogPost = await blog.findById(blogId)
+                .populate({
                     path: 'comments',
                     populate: {
                         path: 'replies',
@@ -68,7 +69,14 @@ export const blogResolvers = {
                             path: 'replies',
                         },
                     },
-                });
+                })
+                .populate({
+                    path: 'comments',
+                    populate:{
+                        path:'user',
+                        populate:"username email profileImageUrl"
+                    }
+                })
 
                 if (!blogPost) {
                     throw new Error("Blog not found");
