@@ -61,28 +61,54 @@ export const blogResolvers = {
         getComments: async (_: unknown, { blogId }: { blogId: string }) => {
             try {
                 const blogPost = await blog.findById(blogId)
-                .populate({
-                    path: 'comments',
-                    populate: {
-                        path: 'replies',
-                        populate: {
-                            path: 'replies',
-                        },
-                    },
-                })
-                .populate({
-                    path: 'comments',
-                    populate:{
-                        path:'user',
-                        populate:"username email profileImageUrl"
-                    }
-                })
+                    .populate({
+                        path: 'comments',
+                        populate: [
+                            {
+                                path: 'user',
+                                select: 'username email profileImageUrl'
+                            },
+                            {
+                                path: 'replies',
+                                populate: [
+                                    {
+                                        path: 'user',
+                                        select: 'username email profileImageUrl'
+                                    },
+                                    {
+                                        path: 'replies',
+                                        populate: {
+                                            path: 'user',
+                                            select: 'username email profileImageUrl'
+                                        }
+                                    }
+                                ]
+                            }
+                        ]
+                    })
+                    .lean();
 
                 if (!blogPost) {
                     throw new Error("Blog not found");
                 }
 
-                return blogPost.comments; // or format it if needed
+                // Helper to sort replies recursively
+                const sortReplies = (comments: any[]) => {
+                    comments.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+                    for (const comment of comments) {
+                        if (comment.replies && Array.isArray(comment.replies)) {
+                            sortReplies(comment.replies);
+                        }
+                    }
+                };
+
+                if (Array.isArray(blogPost.comments)) {
+                    sortReplies(blogPost.comments);
+                }
+
+                return blogPost.comments;
+
             } catch (error: any) {
                 console.error("Error getting comments:", error.message);
                 throw new Error("Failed to fetch comments");
