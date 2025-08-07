@@ -292,5 +292,41 @@ export const blogResolvers = {
                 throw new Error("Failed to delete reply");
             }
         },
+        handleLike: async (_: unknown, { commentId, userId }: { commentId: string, userId: string }) => {
+            const comment = await Comment.findById(commentId);
+            if (!comment) throw new Error("Comment not found!");
+
+            const userObjectId = new mongoose.Types.ObjectId(userId);
+
+            // If already liked, do nothing
+            if (!comment.likes.some(id => id.equals(userObjectId))) {
+                comment.likes.push(userObjectId);
+            }
+
+            // Remove from dislikes if present
+            comment.dislikes = comment.dislikes.filter(id => !id.equals(userObjectId));
+
+            await comment.save();
+            return "Like added successfully";
+        },
+
+        handleDeslike: async (_: unknown, { commentId, userId }: { commentId: string, userId: string }) => {
+            const comment = await Comment.findById(commentId);
+            if (!comment) throw new Error("Comment not found!");
+
+            const userObjectId = new mongoose.Types.ObjectId(userId);
+
+            // If already disliked, do nothing
+            if (!comment.dislikes.some(id => id.equals(userObjectId))) {
+                comment.dislikes.push(userObjectId);
+            }
+
+            // Remove from likes if present
+            comment.likes = comment.likes.filter(id => !id.equals(userObjectId));
+
+            await comment.save();
+            return "Dislike added successfully";
+        },
+
     }
 }

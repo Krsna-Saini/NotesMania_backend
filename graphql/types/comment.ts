@@ -5,4 +5,6 @@ export interface IComment extends Document{
     comment: string;
     replies?: mongoose.Schema.Types.ObjectId[];
     createdAt?: Date;
+    likes:mongoose.Types.ObjectId[];
+    dislikes:mongoose.Types.ObjectId[];
 }

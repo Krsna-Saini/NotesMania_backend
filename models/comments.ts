@@ -19,7 +19,15 @@ const commentSchema = new mongoose.Schema<IComment>({
     createdAt: {
         type: Date,
         default: Date.now
-    }
+    },
+    likes:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }],
+    dislikes:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+    }]
 });
 
 export default mongoose.model<IComment>('Comment', commentSchema);

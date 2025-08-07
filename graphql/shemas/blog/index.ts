@@ -28,6 +28,8 @@ export const blogTypeDefs = gql`
     user: User!
     comment: String!
     replies: [Comment!]
+    likes:[ID]
+    dislikes:[ID]
     createdAt: Date!
     updatedAt: Date!
   }
@@ -93,7 +95,8 @@ export const blogTypeDefs = gql`
 
     handleVisitor(visitor: ID!, blogId: ID!): Blog!
     handleDeleteBlog(blogId: ID!): MessageResponse!
-
+    handleLike(commentId: ID!, userId: ID!): String!
+    handleDeslike(commentId: ID!, userId: ID!): String!
     addComment(blogId: ID!, userId: ID!, comment: String!): String!
     addReply(commentId: ID!, userId: ID!, reply: String!): String!
     deleteComment(commentId: ID!): String!
