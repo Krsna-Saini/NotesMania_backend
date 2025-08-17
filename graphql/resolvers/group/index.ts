@@ -11,7 +11,7 @@ import user from "../../../models/user";
 export const GroupResolver = {
     Query: {
         getGroup: async (_: unknown, { groupId }: IGetGroupArgs): Promise<IGroupDocument | null> => {
-          
+
             const groupdata = await group.findById(groupId)
                 .populate("leader", "id username email profileImageUrl description")
                 .populate("admins.admin", "id username email profileImageUrl description")
@@ -25,9 +25,9 @@ export const GroupResolver = {
         },
         listGroups: async (_: unknown): Promise<IGroupDocument[]> => {
             return group.find()
-            .populate("leader")
-            .populate("members.member")
-            .sort({ createdAt: -1 });
+                .populate("leader")
+                .populate("members.member")
+                .sort({ createdAt: -1 });
 
         },
         listMessages: async (
@@ -56,6 +56,14 @@ export const GroupResolver = {
                 .populate({
                     path: "attachments",
                     select: "fileUrl fileType fileName uploadedAt",
+                })
+                .populate({
+                    path: "ReplyOf",
+                    select: "content type createdAt sender",
+                    populate: {
+                        path: "sender",
+                        select: "username profileImageUrl id"
+                    }
                 })
                 .lean();
 
@@ -105,8 +113,8 @@ export const GroupResolver = {
             const Groups = await group.find({
                 name: { $regex: groupName, $options: "i" }
             })
-            .select("name profilePicture description id")
-            .limit(10)
+                .select("name profilePicture description id")
+                .limit(10)
 
             return Groups || []
         },
@@ -170,7 +178,7 @@ export const GroupResolver = {
             return true;
         },
         rejectInviteRequest: async (_: unknown, { groupId, userId }: { groupId: string; userId: string }) => {
-            
+
             const Group = await group.findById(groupId);
 
             if (!Group) {
@@ -193,7 +201,7 @@ export const GroupResolver = {
             return true;
         },
         addMember: async (_: unknown, args: { input: IAddMemberInput }): Promise<IGroupDocument | null> => {
-            
+
             const { userId, groupId } = args.input;
 
             const groupToUpdate = await group.findById(groupId);
@@ -279,7 +287,7 @@ export const GroupResolver = {
             return groupToUpdate
         },
         demoteAdmin: async (_: unknown, args: { groupId: string, userId: string }): Promise<IGroupDocument | null> => {
-            
+
             const groupToUpdate = await group.findById(args.groupId);
 
             if (!groupToUpdate) {
@@ -317,10 +325,10 @@ export const GroupResolver = {
                 attachments: undefined,
                 createdAt: new Date()
             });
-            return  groupToUpdate;
+            return groupToUpdate;
         },
         removeMember: async (_: unknown, args: { groupId: string, userId: string }): Promise<IGroupDocument | null> => {
-            
+
             const groupToUpdate = await group.findById(args.groupId);
 
             if (!groupToUpdate) {
@@ -330,27 +338,27 @@ export const GroupResolver = {
             const userId = new mongoose.Types.ObjectId(args.userId);
 
             const userAlreadyInGroup = groupToUpdate.members.some((member) => member.member.equals(userId));
-            
+
             if (!userAlreadyInGroup) {
                 throw new Error("User not in group");
             }
-            
+
             const isMemberAdmin = groupToUpdate.admins.some((admin) => admin.admin.equals(userId))
-            
+
             if (isMemberAdmin) {
                 throw new Error("User is admin, demote first")
             }
-            
+
             const isleader = groupToUpdate.leader.equals(userId)
-            
+
             if (isleader) {
                 throw new Error("You cannot remove the group leader")
             }
-            
+
             groupToUpdate.members = groupToUpdate.members.filter((member) => !member.member.equals(userId))
-            
+
             await groupToUpdate.save();
-            
+
             await messageResolvers.Mutation.sendMessage(_, {
                 senderId: args.userId,
                 groupId: args.groupId,

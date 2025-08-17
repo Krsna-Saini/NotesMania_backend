@@ -5,12 +5,14 @@ export interface IMessage  {
     content?: string;
     type: "text" | "critical";
     attachments?: Types.ObjectId[];
+    ReplyOf?:IMessage;
     createdAt: Date;
 }
 export interface IMessageInput  {
     senderId?: string;
     groupId: string;
     content?: string;
+    ReplyOf?:string;
     type: "text" | "critical";
     attachments?: string[];
     createdAt: Date;

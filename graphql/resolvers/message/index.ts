@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Message from "../../../models/message";
 import Group from "../../../models/group";
-import User from "../../../models/user";
 import { IMessage, IMessageInput } from "../../types/messageTypes";
 import { pubsub } from "../../../config/pubsub";
 
@@ -10,16 +9,33 @@ const messageResolvers = {
     messages: async (_: any, { groupId }: { groupId: string }): Promise<IMessage[]> => {
 
       return await Message.find({ group: groupId })
-        .populate('sender')
-        .populate('group')
+        .populate("sender", "username profileImageUrl id")
+        .populate("group")
+        .populate({
+          path: "ReplyOf",
+          select: "content type createdAt sender",
+          populate: {
+            path: "sender",
+            select: "username profileImageUrl id"
+          }
+        })
         .sort({ createdAt: -1 });
-      
+
     },
     message: async (_: any, { messageId }: { messageId: string }): Promise<IMessage> => {
 
       const message = await Message.findById(messageId)
-        .populate('sender')
-        .populate('group');
+        .populate("sender", "username profileImageUrl id")
+        .populate("group")
+        .populate({
+          path: "ReplyOf",
+          select: "content type createdAt sender",
+          populate: {
+            path: "sender",
+            select: "username profileImageUrl id"
+          }
+        });
+
       if (!message) throw new Error('Message not found');
       return message;
 
@@ -29,7 +45,7 @@ const messageResolvers = {
   Mutation: {
     sendMessage: async (
       _: any,
-      { senderId, groupId, content, type, attachments }: IMessageInput
+      { senderId, groupId, content, type, attachments, ReplyOf }: IMessageInput
     ): Promise<IMessage> => {
 
       // the attachments is an attachments[0] is an string with refrence id 
@@ -51,17 +67,25 @@ const messageResolvers = {
         group: groupId,
         content,
         type,
+        ReplyOf,
         attachments: cleanAttachments,
         createdAt: new Date(),
       });
 
       await newMessage.save();
 
-      const populatedMessage = (await newMessage.populate({
-        path:'sender',
-        select:"username profileImageUrl id"
-      }
-      )).populate('attachments');
+      const populatedMessage = await newMessage.populate([
+        { path: "sender", select: "username profileImageUrl id" },
+        { path: "attachments" },
+        {
+          path: "ReplyOf",
+          select: "content type createdAt",
+          populate: {
+            path: "sender",
+            select: "username profileImageUrl id"
+          }
+        },
+      ]);
 
       // publishing message across server
       await pubsub.publish(`MESSAGE_SENT_${groupId}`, {

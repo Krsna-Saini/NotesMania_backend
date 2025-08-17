@@ -23,6 +23,7 @@ export const messageTypedefs = gql`
     group: Group!
     content: String
     type: String!
+    ReplyOf:Message
     createdAt: Date!
   }
 
@@ -45,6 +46,7 @@ export const messageTypedefs = gql`
       groupId: ID!
       content: String
       type: String!
+      ReplyOf:String
       attachments: [String]
     ): Message!
   }

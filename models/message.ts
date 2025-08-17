@@ -12,6 +12,10 @@ const messageSchema = new mongoose.Schema<IMessage>(
       enum: ["text", "critical"], 
       required: true,
     },
+    ReplyOf:{
+      type:mongoose.Schema.Types.ObjectId,
+      ref:"Message"
+    },
     attachments: [{ type: mongoose.Schema.Types.ObjectId, ref: "Attachment" }], 
     createdAt: { type: Date, default: Date.now },
   },
