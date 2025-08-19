@@ -18,7 +18,23 @@ const AiResponsetypeDefs = gql`
     createdAt: String!
     updatedAt: String!
   }
+  enum MatchField {
+    content
+    selectedText
+  }
 
+  enum MessageRole {
+    user
+    assistant
+  }
+  type SearchMatch {
+  _id: ID!            
+  name: String!     
+  role: MessageRole 
+  timestamp: DateTime
+  matchedField: MatchField!
+  matchedLine: String!  
+}
   input AiMessageInput {
     role: String!
     content: String!
@@ -34,7 +50,8 @@ const AiResponsetypeDefs = gql`
   type Mutation {
     addAiResponse(userId: String!, name: String): AiResponseHistory
     updateChatName(chatId: String!, name: String!): AiResponseHistory
-    appendMessage(chatId: ID!, message: AiMessageInput!): AiResponseHistory
+    searchChat(query:String!,userId:String!):[SearchMatch!]
+    appendMessage(chatId: ID!, message: AiMessageInput!): AiResponseHistory!
     deleteChat(chatId: ID!): Boolean
   }
 `;
